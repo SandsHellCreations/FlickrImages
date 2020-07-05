@@ -13,7 +13,6 @@ struct ImageProvider: RequestImages {
     fileprivate let downloadQueue = DispatchQueue(label: "Images cache", qos: DispatchQoS.background)
     internal var cache = NSCache<NSURL, UIImage>()
 
-    static let shared = ImageProvider()
     
     //MARK: - Fetch image from URL and Images cache
     fileprivate func loadImages(from url: URL, completion: @escaping (_ image: UIImage) -> Void) {

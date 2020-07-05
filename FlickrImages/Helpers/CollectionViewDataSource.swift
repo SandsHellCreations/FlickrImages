@@ -1,8 +1,8 @@
 //
 //  CollectionViewDataSource.swift
-//  GasItUpDriver
+//  FlickrImages
 //
-//  Created by Sandeep Kumar on 31/03/20.
+//  Created by Sandeep Kumar on 05/07/20.
 //  Copyright © 2020 SandsHellCreations. All rights reserved.
 //
 
@@ -18,6 +18,17 @@ extension ReusableCellCollection {
     static var identfier: String {
         return String.init(describing: self)
     }
+}
+
+enum ScrollDirection {
+    case Up
+    case Down
+}
+
+enum InfiniteScrollStatus {
+    case FinishLoading // stop infinite loading and pull to refresh
+    case LoadingContent // handled automatically no need to setup assign Viewcontroller
+    case NoContentAnyMore // no more paging
 }
 
 class CollectionDataSource: NSObject, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
@@ -39,7 +50,6 @@ class CollectionDataSource: NSObject, UICollectionViewDataSource, UICollectionVi
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(handleRefresh(_:)), for: UIControl.Event.valueChanged)
-        refreshControl.tintColor = ColorAsset.activityIndicator.color
         
         return refreshControl
     }()
@@ -75,12 +85,16 @@ class CollectionDataSource: NSObject, UICollectionViewDataSource, UICollectionVi
     
     public func stopInfiniteLoading(_ status: InfiniteScrollStatus) {
         infiniteLoadingStatus = status
-        refreshControl.endRefreshing()
+        DispatchQueue.main.async {
+            self.refreshControl.endRefreshing()
+        }
     }
     
     public func updateData(_ _items: Array<Any>?) {
         items = _items
-        collectionView?.reloadData()
+        DispatchQueue.main.async {
+            self.collectionView?.reloadData()
+        }
     }
     
     public func refreshProgrammatically() {
